@@ -1,0 +1,34 @@
+from requests_html import HTMLSession
+session = HTMLSession()
+
+years=[2020,2021,2022]
+months={"january":"01",
+        "february":"02",
+        "march":"03",
+        "april":"04",
+        "may":"05",
+        "june":"06",
+        "july":"07",
+        "august":"08",
+        "september":"09",
+        "october":"10",
+        "november":"11",
+        "december":"12"}
+
+for i in years:
+  for k,v in months.items():
+    url = f"https://dsebd.org/old_news.php?startDate={i}-{v}-01&endDate={i}-{v}-26&criteria=4&archive=news"
+    print(url)
+    r = session.get(url)
+    dse_news = r.html.find(".table-news")[0].text
+    dse_news_lst = dse_news.split('\n')
+    trading_code = dse_news_lst[1::8]
+    news_title = dse_news_lst[3::8]
+    news = dse_news_lst[5::8]
+    post_date = dse_news_lst[7::8]
+    print(r.status_code)
+    with open(f"{i}/dse_news_{i}_month_{k}.txt", "w",encoding='utf-8') as f:
+      f.write("No, Trading Code, News Title, News, Post Date\n")
+      for q, t, nt, p in zip(range(1, len(trading_code)+1), trading_code, news_title, post_date):
+        f.write(f"{q}, {t}, {nt}, {p}")
+        f.write('\n')
